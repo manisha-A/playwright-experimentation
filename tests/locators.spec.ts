@@ -31,7 +31,7 @@ function destroyButtonForItem(item: Locator): Locator {
   return item.locator('button.destroy');
 }
 
-test('has title', async ({ homePage }) => {
+test('can add and delete items from todo list', async ({ homePage }) => {
   // Expect a title "to contain" a substring.
   await expect(homePage).toHaveTitle(/TodoMVC/);
 
