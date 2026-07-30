@@ -11,8 +11,8 @@ export class ToDoPage {
         this.items = page.locator('.todo-list > li');
     }
 
-    async goto(): Promise<void>{
-        await this.page.goto('https://demo.playwright.dev/todomvc/#/');
+    async goto(path: string, testInfo): Promise<void>{
+        await this.page.goto(testInfo.project.use.baseURL + path);
     }
 
     async addToDo(textInput: string): Promise<void>{

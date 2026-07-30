@@ -13,15 +13,43 @@ import { defineConfig, devices } from '@playwright/test';
  */
 const ENV = process.env.TEST_ENV || 'dev';
 
+const environmentSettings = {
+  staging: {
+    baseURL: 'https://demo.playwright.dev',
+    retries: 1,
+    headless: false,
+    metadata: {
+      environment: 'staging',
+      build: 'pre-release',
+      target: 'pre-release-validation',
+      configuredRetries: 1,
+    },
+  },
+  production: {
+    baseURL: 'https://demo.playwright.dev',
+    retries: 0,
+    headless: false,
+    metadata: {
+      environment: 'production',
+      build: 'release-build',
+      target: 'live-validation',
+      configuredRetries: 0,
+    },
+  }
+}[ENV as 'staging' | 'production'];
+
 export default defineConfig({
-  timeout: 30000,
+  timeout: 30_000,
+  expect: {
+    timeout: 5_000
+  },
   testDir: './tests',
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
   /* Retry on CI only */
-  retries: 2,
+  retries: environmentSettings.retries,
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
@@ -29,19 +57,16 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('')`. */
-    baseURL: 
-      ENV === 'staging'
-        ? 'https://demo.playwright.dev/todomvc/#/'
-        : 'https://demo.playwright.dev/todomvc/#/',
+    baseURL: environmentSettings.baseURL,
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
-    headless: false,
+    headless: environmentSettings.headless,
+    screenshot: 'only-on-failure',
+    video: 'retain-on-failure',
   },
 
-  metadata: {
-    environment: ENV,
-  }, 
+  metadata: environmentSettings.metadata, 
   /* Configure projects for major browsers */
   projects: [
     {
