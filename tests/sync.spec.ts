@@ -2,7 +2,8 @@ import { test } from '@playwright/test';
 import { ToDoPage } from './Pages/ToDoPage.ts';
 
 
-test('BAD EXAMPLE: Introducing race conditions', async ({ page }) => {
+test('BAD EXAMPLE: Introducing race conditions', async ({ page },testInfo) => {
+  console.log(testInfo.config.metadata.environment);
   const todo = new ToDoPage(page);
   await todo.goto();
   // Expect a title "to contain" a substring.
@@ -23,4 +24,18 @@ test('BAD EXAMPLE: Introducing race conditions', async ({ page }) => {
   await todo.expectCount(4);
 
   await todo.toggleTodo('Explicit Wait Example')
+})
+
+test('Skip only on: staging', async ({ page}, testInfo) => {
+  console.log(testInfo.config.metadata.environment);
+  if(testInfo.config.metadata.environment === 'staging'){
+    test.skip('skip test');
+  }
+  const todo = new ToDoPage(page);
+  await todo.goto();
+  // Expect a title "to contain" a substring.
+  await todo.expectTitle(/TodoMVC/);
+
+  await todo.addToDo('A');
+  await todo.expectCount(1);
 })
